@@ -1,0 +1,17 @@
+{
+  "name": "blue-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "tsc": "^2.0.4"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.2"
+  }
+}
