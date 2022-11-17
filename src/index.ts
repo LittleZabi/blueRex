@@ -1,55 +1,73 @@
-const blueRex:any = { 
-    get: (u:string, d:any ,async:boolean = true)=>{
-        let x = new XMLHttpRequest();
-        let method = 'GET';
-        let data = d ? d : {};
-        return new Promise((a, b)=>{
-                x.onreadystatechange = function(){
-                    if(this.readyState === 4){
-                        if(this.status === 200){
-                            let t = this.response
-                            a(t)
-                        }else{
-                            b(this.response)
-                        }
-                    }
-                }
-            x.open(method.toUpperCase(), u, async)
-            x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            x.send(u)
-        })
-    },
-    post: (u:string, d:any, async:boolean = true)=>{
-        let x = new XMLHttpRequest();
-        let method = 'POST';
-        let data = d ? d : {};
-        const setParams =(d_:any)=>{
-            let p:any = ''
-            for(let k in d_) p += k + '=' + d_[k] + '&'
-            console.log(p)
-            return p
-        }
-        return new Promise((a, b)=>{
-                x.onreadystatechange = function(){
-                    if(this.readyState === 4){
-                        if(this.status === 200){
-                            let t = this.response
-                            a(t)
-                        }else{
-                            b(this.response)
-                        }
-                    }
-                }
-            x.open(method.toUpperCase(), u, async)
-            x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            x.send(setParams(data))
-        })
-    }
+interface REX_ {
+  get: (url: string, data?: object, headers?: object, async?: boolean) => any;
+  post: (url: string, data: object, headers?: object, async?: boolean) => any;
+  setParams: (data: object, url?: string) => string;
 }
-// blueRex.post('https://jsonplaceholder.typicode.com/todos/1', {a: 1, b: 2, c:3}).then((e:any) => {
-//     console.log('res: ', e)
-//     return e
-// }).catch((e:any) => {
-//     console.log('res: ', e)
-// })
-  
+const blueRex: REX_ = {
+  setParams: (data: any, url = "") => {
+    if (Object.keys(data).length < 1) return "";
+    let h = "";
+    for (let k in data) h += k + "=" + data[k] + "&";
+    if (h.substr(-1) === "&") h = h.substring(0, h.length - 1);
+    if (url != "") {
+      if (url.split("?").length > 1) {
+        url = `${url}&${h}`;
+      } else {
+        url = `${url}?${h}`;
+      }
+      return url;
+    } else {
+      return h;
+    }
+  },
+  get: (
+    url: string,
+    data: object = {},
+    headers: object | any = {},
+    async: boolean = true
+  ) => {
+    let x = new XMLHttpRequest();
+    return new Promise((a, b) => {
+      x.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          if (this.status === 200) {
+            let t = this.response;
+            a(t);
+          } else {
+            b(this.response);
+          }
+        }
+      };
+      let url_ = blueRex.setParams(data, url);
+      x.open("GET", url_, async);
+      x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      for (let header in headers) x.setRequestHeader(header, headers[header]);
+      x.send(url_);
+    });
+  },
+  post: (
+    url: string,
+    data: any = {},
+    headers: any = {},
+    async: boolean = true
+  ) => {
+    let x = new XMLHttpRequest();
+    return new Promise((a, b) => {
+      x.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          if (this.status === 200) {
+            let t = this.response;
+            a(t);
+          } else {
+            b(this.response);
+          }
+        }
+      };
+      x.open("POST", url, async);
+      x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      for (let header in headers) x.setRequestHeader(header, headers[header]);
+      x.send(blueRex.setParams(data));
+    });
+  },
+};
+
